@@ -60,10 +60,10 @@ html,body{margin:0;background:var(--white);color:var(--ink);font-family:var(--bo
 h1,h2,h3{font-family:var(--display);font-weight:400;letter-spacing:.02em;margin:0;line-height:1}
 :focus-visible{outline:3px solid var(--ink);outline-offset:2px}
 
-header{background:var(--white);color:var(--ink);border-bottom:2px solid var(--lav);display:flex;align-items:baseline;justify-content:space-between;padding:14px 28px}
+header{background:var(--ink);color:var(--white);display:flex;align-items:baseline;justify-content:space-between;padding:14px 28px}
 header h1{font-size:34px}
-header h1 span{color:var(--ink-2)}
-header small{font-size:14px;color:var(--ink-2)}
+header h1 span{color:var(--lav)}
+header small{font-size:14px;color:var(--white);opacity:.8}
 
 .wrap{display:grid;grid-template-columns:300px 1fr;min-height:calc(100vh - 62px)}
 #queue{background:var(--lav);padding:20px 0}
