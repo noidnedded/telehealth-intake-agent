@@ -43,12 +43,12 @@ PAGE = r"""<!doctype html>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --lav:#D7C7ED;        /* main */
-  --lav-soft:#EFE8F8;   /* tint of main */
+  --lav:#BFC8F0;        /* main */
+  --lav-soft:#ECEFFB;   /* tint of main */
   --white:#FFFFFF;      /* secondary */
   --ink:#1D1C1A;        /* accent / body text */
   --ink-2:#5C5A57;      /* secondary text */
-  --line:#E4DEEC;
+  --line:#DDE2F2;
   --alert:#B42318;      /* clinical alert, kept red on purpose */
   --alert-soft:#FDECEA;
   --ok:#1F6B45;
