@@ -1,4 +1,4 @@
-"""NP Dashboard v2. Stdlib only (no install). http://localhost:5050
+"""NP Dashboard. Stdlib only (no install). http://localhost:5050
 Reads/writes cases.json shared with intake_agent.py. Fictional data only.
 """
 import json
@@ -35,61 +35,140 @@ def now_hm():
 
 
 PAGE = r"""<!doctype html>
-<html><head><meta charset="utf-8"><title>NP Intake Dashboard</title>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NP Intake Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--cer:#0284C7;--navy:#082F49;--red:#DC2626;--bg:#F1F5F9;--line:#CBD5E1}
+:root{
+  --lav:#D7C7ED;        /* main */
+  --lav-soft:#EFE8F8;   /* tint of main */
+  --white:#FFFFFF;      /* secondary */
+  --ink:#1D1C1A;        /* accent / body text */
+  --ink-2:#5C5A57;      /* secondary text */
+  --line:#E4DEEC;
+  --alert:#B42318;      /* clinical alert, kept red on purpose */
+  --alert-soft:#FDECEA;
+  --ok:#1F6B45;
+  --display:'Bebas Neue',Impact,'Arial Narrow',sans-serif;
+  --body:'Public Sans',-apple-system,Helvetica,Arial,sans-serif;
+}
 *{box-sizing:border-box}
-body{margin:0;font-family:-apple-system,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--navy);font-size:20px}
-header{background:var(--navy);color:#fff;padding:14px 24px;font-size:26px;font-weight:700;display:flex;justify-content:space-between}
-header small{font-weight:400;font-size:18px;opacity:.8}
-.wrap{display:flex;height:calc(100vh - 62px)}
-#queue{width:320px;background:#fff;border-right:1px solid var(--line);overflow:auto}
-.qi{padding:14px 16px;border-bottom:1px solid var(--line);cursor:pointer}
-.qi.sel{background:#E0F2FE;border-left:6px solid var(--cer)}
-.qi .n{font-weight:700}
-.qi .m{font-size:16px;color:#475569;margin-top:4px}
-.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:14px;font-weight:700;margin-right:6px}
-.stat{background:var(--red);color:#fff}
-.rout{background:#E2E8F0;color:var(--navy)}
-#main{flex:1;overflow:auto;padding:24px 32px}
-.banner{background:var(--red);color:#fff;font-size:30px;font-weight:800;padding:12px 18px;border-radius:10px;margin-bottom:16px;animation:pulse 1.2s infinite}
-@keyframes pulse{50%{opacity:.75}}
-h2{margin:0 0 6px;font-size:30px}
-.sub{color:#475569;margin-bottom:16px}
-.tl{display:flex;gap:8px;margin:12px 0 20px}
-.step{flex:1;text-align:center;padding:10px 6px;border-radius:8px;background:#E2E8F0;color:#64748B;font-size:16px;font-weight:600}
-.step.on{background:var(--cer);color:#fff}
-.step .t{display:block;font-size:14px;font-weight:400;margin-top:2px}
-.flags{background:#FEE2E2;border:2px solid var(--red);border-radius:10px;padding:12px 16px;margin-bottom:16px;color:#991B1B;font-weight:700}
-pre{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px;font-size:20px;white-space:pre-wrap;line-height:1.4}
-.actions{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px;margin-top:16px}
-button{font-size:20px;padding:12px 20px;border-radius:8px;border:0;background:var(--cer);color:#fff;font-weight:700;cursor:pointer}
-button:disabled{background:#94A3B8;cursor:default}
-textarea{width:100%;height:110px;font-size:20px;padding:10px;border:1px solid var(--line);border-radius:8px;margin:12px 0;font-family:inherit}
-.result{margin-top:10px;font-weight:600;color:#065F46}
-.empty{color:#64748B;font-size:24px;margin-top:80px;text-align:center}
+html,body{margin:0;background:var(--white);color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.45}
+h1,h2,h3{font-family:var(--display);font-weight:400;letter-spacing:.02em;margin:0;line-height:1}
+:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+
+header{background:var(--ink);color:var(--white);display:flex;align-items:baseline;justify-content:space-between;padding:14px 28px}
+header h1{font-size:34px}
+header h1 span{color:var(--lav)}
+header small{font-size:14px;color:var(--lav)}
+
+.wrap{display:grid;grid-template-columns:300px 1fr;min-height:calc(100vh - 62px)}
+#queue{background:var(--lav);padding:20px 0}
+#queue h2{font-size:24px;padding:0 20px 10px}
+.qi{display:block;width:100%;text-align:left;border:0;background:transparent;padding:14px 20px;cursor:pointer;font:inherit;color:var(--ink);border-left:6px solid transparent}
+.qi:hover{background:rgba(255,255,255,.35)}
+.qi.sel{background:var(--white);border-left-color:var(--ink)}
+.qi .n{font-weight:700;font-size:18px;display:flex;gap:8px;align-items:center}
+.qi .m{font-size:14px;color:var(--ink-2);margin-top:2px}
+.tag{font-size:12px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:.04em}
+.tag.stat{background:var(--alert);color:var(--white)}
+.tag.rout{background:var(--white);color:var(--ink);border:1px solid var(--ink)}
+
+#main{padding:28px 36px 40px;max-width:1500px}
+.empty{margin-top:12vh;text-align:center;color:var(--ink-2)}
+.empty h2{font-size:56px;color:var(--ink);margin-bottom:8px}
+
+.banner{background:var(--alert);color:var(--white);font-family:var(--display);font-size:40px;letter-spacing:.04em;padding:10px 22px;border-radius:8px;margin-bottom:22px;animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.82}}
+@media (prefers-reduced-motion:reduce){.banner{animation:none}}
+
+.who h2{font-size:64px}
+.who p{margin:6px 0 0;color:var(--ink-2)}
+
+.tl{list-style:none;display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:0;margin:22px 0 26px}
+.tl li{background:var(--lav-soft);color:var(--ink-2);padding:10px 12px;border-radius:6px;font-size:15px;font-weight:600}
+.tl li.on{background:var(--lav);color:var(--ink)}
+.tl li .t{display:block;font-weight:400;font-size:13px;margin-top:2px;min-height:1em}
+
+/* Vitals: the one loud element. Read like a bedside monitor. */
+.vitals{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.vt{border:2px solid var(--ink);border-radius:10px;padding:14px 18px 12px;background:var(--white)}
+.vt .lbl{font-size:15px;font-weight:600}
+.vt .val{font-family:var(--display);font-size:84px;line-height:.95;margin-top:6px}
+.vt .unit{font-size:15px;color:var(--ink-2)}
+.vt.crit{border-color:var(--alert);background:var(--alert-soft);color:var(--alert)}
+.vt.crit .unit{color:var(--alert)}
+.vt .why{font-size:14px;font-weight:700;min-height:1.2em;margin-top:4px}
+.vt.wait .val{color:var(--line)}
+
+.flags{border-left:6px solid var(--alert);background:var(--alert-soft);color:var(--alert);padding:10px 16px;font-weight:700;margin-bottom:26px;border-radius:0 6px 6px 0}
+
+.cols{display:grid;grid-template-columns:3fr 2fr;gap:22px;align-items:start}
+.panel{border:1px solid var(--line);border-radius:10px;padding:20px 22px;background:var(--white)}
+.panel h3{font-size:30px;margin-bottom:12px}
+.sbar{display:grid;grid-template-columns:44px 1fr;column-gap:16px;row-gap:16px;margin:0}
+.sbar dt{font-family:var(--display);font-size:34px;line-height:1;background:var(--lav);text-align:center;border-radius:6px;height:40px;padding-top:4px}
+.sbar dd{margin:0;max-width:62ch}
+.sbar dd small{display:block;color:var(--ink-2);font-size:14px;margin-bottom:2px}
+.missing{margin-top:14px;font-size:15px;color:var(--ink-2)}
+
+button.act{font:inherit;font-weight:700;font-size:18px;padding:12px 20px;border-radius:8px;border:2px solid var(--ink);background:var(--lav);color:var(--ink);cursor:pointer}
+button.act:hover:not(:disabled){background:var(--ink);color:var(--white)}
+button.act:disabled{background:var(--white);border-color:var(--line);color:var(--ink-2);cursor:default}
+textarea{display:block;width:100%;min-height:120px;font:inherit;padding:12px;border:2px solid var(--line);border-radius:8px;margin:14px 0;resize:vertical}
+textarea:focus{border-color:var(--ink);outline:none}
+.result{margin-top:12px;font-weight:600}
+.result.ok{color:var(--ok)}
+.waiting{color:var(--ink-2)}
+
+@media (max-width:1100px){
+  .cols{grid-template-columns:1fr}
+  .vitals{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:760px){
+  .wrap{grid-template-columns:1fr}
+  #queue{padding:0}
+  #qlist{display:flex;overflow-x:auto}
+  #queue h2{display:none}
+  .qi{flex:0 0 auto;width:auto;border-left:0;border-bottom:4px solid transparent}
+  .qi.sel{border-bottom-color:var(--ink)}
+  #main{padding:18px 16px 32px}
+  .who h2{font-size:44px}
+  .banner{font-size:30px}
+  .tl{grid-template-columns:1fr 1fr}
+  .vt .val{font-size:60px}
+}
 </style></head><body>
-<header><span>Telehealth Intake | NP Dashboard v2</span><small>fictional data only</small></header>
+<header><h1>Telehealth intake <span>/ NP dashboard</span></h1><small>Fictional data only</small></header>
 <div class="wrap">
-  <div id="queue"></div>
-  <div id="main">
-    <div id="detail"><div class="empty">Waiting for calls...</div></div>
-    <div class="actions" id="actions" style="display:none">
-      <button id="ackBtn">Acknowledge</button>
-      <textarea id="orders" placeholder="Type orders here..."></textarea>
-      <button id="sendBtn">Send orders to nurse</button>
-      <div class="result" id="result"></div>
-    </div>
-  </div>
+  <nav id="queue" aria-label="Case queue"><h2>Cases</h2><div id="qlist"></div></nav>
+  <main id="main">
+    <div id="detail"><div class="empty"><h2>No calls yet</h2><p>New intake calls appear here as soon as a nurse dials in.</p></div></div>
+  </main>
 </div>
 <script>
 const STEPS=[["call_in_progress","Call in progress"],["summary_received","Summary received"],
  ["acknowledged","NP acknowledged"],["orders_sent","Orders sent"],["readback_confirmed","Read-back confirmed"]];
-const LABELS={nurse_name:"Caller",resident_name:"Resident",reason_for_call:"Situation",bp:"BP",heart_rate:"HR",
- temp_f:"Temp F",spo2:"SpO2",relevant_history:"History",nurse_request:"Request"};
-let cases=[],selected=null,lastNewest=null,ordersFor=null;
+let cases=[],selected=null,lastNewest=null,draft={};
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const byNew=(a,b)=>b.created_at.localeCompare(a.created_at);
+const num=v=>{const m=String(v??"").match(/\d+(\.\d+)?/);return m?parseFloat(m[0]):null;};
+
+// Same thresholds as intake_agent.assess(), so tiles match the red flags.
+function vitals(f){
+  const bp=String(f.bp??"").match(/\d+/g)||[];const sbp=bp.length?+bp[0]:null;
+  const hr=num(f.heart_rate),t=num(f.temp_f),o2=num(f.spo2);
+  return [
+    {lbl:"Blood pressure",val:bp.length>=2?`${bp[0]}/${bp[1]}`:null,unit:"mmHg",
+     why:sbp!=null&&sbp<90?"Low systolic":sbp!=null&&sbp>180?"High systolic":""},
+    {lbl:"Heart rate",val:hr,unit:"bpm",why:hr!=null&&hr<50?"Bradycardic":hr!=null&&hr>120?"Tachycardic":""},
+    {lbl:"Temperature",val:t,unit:"°F",why:t!=null&&t>=100.4?"Fever":""},
+    {lbl:"Oxygen saturation",val:o2,unit:"%",why:o2!=null&&o2<90?"Low oxygen":""},
+  ];
+}
 
 async function poll(){try{const r=await fetch('/api/cases');cases=await r.json();render();}catch(e){}}
 
@@ -97,41 +176,65 @@ function render(){
   const newest=[...cases].sort(byNew)[0];
   if(newest&&newest.id!==lastNewest){selected=newest.id;lastNewest=newest.id;}
   const list=[...cases].sort((a,b)=>((b.acuity==='stat')-(a.acuity==='stat'))||byNew(a,b));
-  document.getElementById('queue').innerHTML=list.map(c=>{
-    const f=c.fields||{};
-    return `<div class="qi ${c.id===selected?'sel':''}" onclick="pick('${c.id}')">
-      <div class="n">${c.acuity==='stat'?'<span class="badge stat">STAT</span>':c.acuity?'<span class="badge rout">ROUTINE</span>':''}${esc(f.resident_name||'Incoming call...')}</div>
-      <div class="m">${esc((c.created_at||'').slice(11,16))} · ${(c.red_flags||[]).length} flags · ${esc((c.status||'').replace(/_/g,' '))}</div></div>`;
+  document.getElementById('qlist').innerHTML=list.map(c=>{
+    const f=c.fields||{},n=(c.red_flags||[]).length;
+    const tag=c.acuity==='stat'?'<span class="tag stat">STAT</span>':c.acuity?'<span class="tag rout">Routine</span>':'';
+    return `<button class="qi ${c.id===selected?'sel':''}" data-id="${esc(c.id)}">
+      <span class="n">${tag}${esc(f.resident_name||'Incoming call')}</span>
+      <span class="m">${esc((c.created_at||'').slice(11,16))}, ${n} ${n===1?'flag':'flags'}, ${esc((c.status||'').replace(/_/g,' '))}</span></button>`;
   }).join('');
-  const c=cases.find(x=>x.id===selected);
-  const acts=document.getElementById('actions');
-  if(!c){acts.style.display='none';return;}
-  const f=c.fields||{},tl=c.timeline||{};
-  let h='';
-  if(c.acuity==='stat')h+=`<div class="banner">⚠ STAT — CRITICAL VITALS</div>`;
-  h+=`<h2>${esc(f.resident_name||'Incoming call...')}</h2><div class="sub">Caller: ${esc(f.nurse_name||'—')} · Case ${esc(c.id)}</div>`;
-  h+=`<div class="tl">`+STEPS.map(([k,l])=>`<div class="step ${tl[k]?'on':''}">${l}<span class="t">${esc(tl[k]||'')}</span></div>`).join('')+`</div>`;
-  if((c.red_flags||[]).length)h+=`<div class="flags">RED FLAGS: ${c.red_flags.map(esc).join(' · ')}</div>`;
-  if(c.sbar_text)h+=`<pre>${esc(c.sbar_text)}</pre>`;
-  else h+=`<pre>Intake in progress...\n\n`+Object.keys(LABELS).filter(k=>f[k]!=null).map(k=>`${LABELS[k]}: ${esc(f[k])}`).join('\n')+`</pre>`;
-  document.getElementById('detail').innerHTML=h;
+  document.querySelectorAll('.qi').forEach(b=>b.onclick=()=>{selected=b.dataset.id;render();});
 
-  acts.style.display=c.sbar_text?'block':'none';
-  const ack=document.getElementById('ackBtn'),send=document.getElementById('sendBtn'),ta=document.getElementById('orders');
-  ack.disabled=!(c.status==='summary_received');
-  ack.textContent=tl.acknowledged?`Acknowledged ✓ ${tl.acknowledged}`:'Acknowledge';
-  send.disabled=!(tl.acknowledged&&!tl.orders_sent);
-  if(ordersFor!==c.id){ta.value=c.orders||'';ordersFor=c.id;}
-  ta.disabled=!!tl.orders_sent;
-  document.getElementById('result').textContent=
-    tl.readback_confirmed?`✓ Read-back confirmed ${tl.readback_confirmed}: "${c.readback_text||''}"`:
-    tl.orders_sent?`Orders queued ${tl.orders_sent}. Waiting for nurse to call back for read-back...`:'';
+  const c=cases.find(x=>x.id===selected);
+  if(!c)return;
+  const f=c.fields||{},tl=c.timeline||{};
+  const ta=document.getElementById('orders');
+  if(ta&&!ta.disabled)draft[selected]=ta.value;
+
+  let h='';
+  if(c.acuity==='stat')h+=`<div class="banner" role="alert">STAT: critical vitals</div>`;
+  h+=`<div class="who"><h2>${esc(f.resident_name||'Incoming call')}</h2><p>Caller: ${esc(f.nurse_name||'not given yet')}, case ${esc(c.id)}</p></div>`;
+  h+=`<ol class="tl">`+STEPS.map(([k,l])=>`<li class="${tl[k]?'on':''}">${l}<span class="t">${esc(tl[k]||'')}</span></li>`).join('')+`</ol>`;
+
+  h+=`<section class="vitals" aria-label="Vital signs">`+vitals(f).map(v=>{
+    const cls=v.val==null?'wait':v.why?'crit':'';
+    return `<div class="vt ${cls}"><div class="lbl">${v.lbl}</div>
+      <div class="val">${v.val==null?'--':esc(v.val)}</div><div class="unit">${v.unit}</div>
+      <div class="why">${esc(v.why)}</div></div>`;}).join('')+`</section>`;
+  if((c.red_flags||[]).length)h+=`<div class="flags">Red flags: ${c.red_flags.map(esc).join(', ')}</div>`;
+
+  const row=(k,label,val)=>`<dt>${k}</dt><dd><small>${label}</small>${val?esc(val):'<span class="waiting">Waiting for the nurse...</span>'}</dd>`;
+  h+=`<div class="cols"><section class="panel"><h3>SBAR summary</h3><dl class="sbar">
+    ${row('S','Situation',f.reason_for_call)}
+    ${row('B','Background',f.relevant_history)}
+    ${row('A','Assessment',(c.red_flags||[]).length?c.red_flags.join(', '):(f.spo2!=null?'No critical vitals':''))}
+    ${row('R','Request',f.nurse_request)}</dl>
+    ${(c.missing||[]).length?`<p class="missing">Not provided: ${c.missing.map(esc).join(', ')}</p>`:''}</section>`;
+
+  h+=`<section class="panel"><h3>Orders</h3>`;
+  if(!c.sbar_text){h+=`<p class="waiting">Orders open once the intake call finishes.</p>`;}
+  else{
+    const sent=!!tl.orders_sent;
+    h+=`<button class="act" id="ackBtn" ${c.status==='summary_received'?'':'disabled'}>${tl.acknowledged?'Acknowledged at '+esc(tl.acknowledged):'Acknowledge'}</button>
+      <label for="orders" class="sr" style="position:absolute;left:-9999px">Orders for the nurse</label>
+      <textarea id="orders" placeholder="Type orders for the nurse" ${sent?'disabled':''}>${esc(sent?c.orders:(draft[c.id]??''))}</textarea>
+      <button class="act" id="sendBtn" ${tl.acknowledged&&!sent?'':'disabled'}>${sent?'Orders sent':'Send orders to nurse'}</button>`;
+    if(tl.readback_confirmed)h+=`<p class="result ok">Read-back confirmed at ${esc(tl.readback_confirmed)}: "${esc(c.readback_text)}"</p>`;
+    else if(sent)h+=`<p class="result waiting">Waiting for the nurse to call back and read the orders back.</p>`;
+  }
+  h+=`</section></div>`;
+
+  const focusId=document.activeElement&&document.activeElement.id;
+  const sel=focusId==='orders'?[document.activeElement.selectionStart,document.activeElement.selectionEnd]:null;
+  document.getElementById('detail').innerHTML=h;
+  if(focusId==='orders'){const t=document.getElementById('orders');if(t&&!t.disabled){t.focus();t.setSelectionRange(...sel);}}
+
+  const ack=document.getElementById('ackBtn'),send=document.getElementById('sendBtn'),t2=document.getElementById('orders');
+  if(ack)ack.onclick=async()=>{await fetch(`/api/cases/${selected}/ack`,{method:'POST'});poll();};
+  if(t2)t2.oninput=()=>{draft[selected]=t2.value;};
+  if(send)send.onclick=async()=>{const o=t2.value.trim();if(!o)return;
+    await fetch(`/api/cases/${selected}/orders`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({orders:o})});poll();};
 }
-function pick(id){selected=id;render();}
-document.getElementById('ackBtn').onclick=async()=>{await fetch(`/api/cases/${selected}/ack`,{method:'POST'});poll();};
-document.getElementById('sendBtn').onclick=async()=>{
-  const orders=document.getElementById('orders').value.trim(); if(!orders)return;
-  await fetch(`/api/cases/${selected}/orders`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({orders})});poll();};
 poll();setInterval(poll,2000);
 </script></body></html>"""
 
