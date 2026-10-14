@@ -1,4 +1,4 @@
-"""NP Dashboard. Stdlib only (no install). http://localhost:5050
+"""NP Dashboard v2. Stdlib only (no install). http://localhost:5050
 Reads/writes cases.json shared with intake_agent.py. Fictional data only.
 """
 import json
@@ -69,7 +69,7 @@ textarea{width:100%;height:110px;font-size:20px;padding:10px;border:1px solid va
 .result{margin-top:10px;font-weight:600;color:#065F46}
 .empty{color:#64748B;font-size:24px;margin-top:80px;text-align:center}
 </style></head><body>
-<header><span>Telehealth Intake | NP Dashboard</span><small>fictional data only</small></header>
+<header><span>Telehealth Intake | NP Dashboard v2</span><small>fictional data only</small></header>
 <div class="wrap">
   <div id="queue"></div>
   <div id="main">
